@@ -67,6 +67,40 @@ mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true
 })
 .then(() => console.log('Conectado a MongoDB'))
+  .then(async () => {
+  console.log('Conectado a MongoDB');
+  
+  // Inicializar testimonios si no existen
+  try {
+    const Testimonial = require('./models/Testimonial');
+    const count = await Testimonial.countDocuments();
+    
+    if (count === 0) {
+      console.log('Inicializando testimonios...');
+      
+      const initialTestimonials = [
+        {name: 'Carlos Ruiz', content: 'Gracias a PSF pude financiar mis estudios de máster. El proceso fue rápido y transparente.', date: '15/12/2023'},
+        {name: 'Laura Fernández', content: 'Solicité un préstamo para reformar mi casa y me lo concedieron en menos de 48 horas.', date: '23/01/2024'},
+        {name: 'Miguel Ángel', content: 'Mi experiencia con PSF ha sido inmejorable. Un trato personalizado y condiciones competitivas.', date: '18/03/2024'},
+        {name: 'Elena Torres', content: 'Recomiendo PSF a todos mis amigos. Gracias a su préstamo pude comprar mi primer coche.', date: '05/05/2024'},
+        {name: 'Javier Moreno', content: 'Elegí PSF por su transparencia y su atención al cliente. No me he arrepentido en absoluto.', date: '12/07/2024'},
+        {name: 'Patricia Sánchez', content: 'PSF me dio una solución en tiempo récord para mi negocio. Muy satisfecha.', date: '03/09/2024'},
+        {name: 'Roberto Díaz', content: 'El proceso de solicitud online es muy sencillo e intuitivo. Excelente servicio.', date: '22/10/2024'},
+        {name: 'Carmen Navarro', content: 'Me gusta la transparencia de PSF. La calculadora de préstamos es muy útil y precisa.', date: '17/11/2024'},
+        {name: 'Francisco López', content: 'Mi gestor me ayudó a elegir el préstamo que mejor se adaptaba a mis necesidades.', date: '08/12/2024'},
+        {name: 'Isabel Martín', content: 'Ya he solicitado tres préstamos con PSF y siempre ha sido una experiencia positiva.', date: '14/01/2025'},
+        {name: 'David González', content: 'PSF me ha permitido financiar mis proyectos con condiciones inmejorables.', date: '27/02/2025'},
+        {name: 'Sofía Ramírez', content: 'Gracias a PSF pude hacer frente a un imprevisto económico. Excelente servicio.', date: '19/03/2025'},
+        {name: 'Alejandro Serrano', content: 'La mejor entidad financiera con la que he trabajado. Su compromiso se nota.', date: '01/04/2025'}
+      ];
+      
+      await Testimonial.insertMany(initialTestimonials);
+      console.log(`${initialTestimonials.length} testimonios añadidos con éxito.`);
+    }
+  } catch (error) {
+    console.error('Error al inicializar testimonios:', error);
+  }
+})
 .catch(err => console.error('Error al conectar con MongoDB:', err));
 
 // Rutas API
