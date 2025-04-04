@@ -74,10 +74,22 @@ async function loadUserMessages() {
       response.messages.forEach(message => {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${message.from === 'admin' ? 'received' : 'sent'}`;
-        messageElement.innerHTML = `
-          <div class="message-content">${message.content}</div>
-          <div class="message-time">${message.time}</div>
-        `;
+        
+        let messageContent = `<div class="message-content">${message.content}</div>`;
+        
+        // Agregar adjunto si existe
+        if (message.attachmentUrl) {
+          messageContent += `
+            <div class="message-attachment">
+              <div class="file-icon">📎</div>
+              <div class="file-name">${message.attachmentUrl}</div>
+            </div>
+          `;
+        }
+        
+        messageContent += `<div class="message-time">${message.time}</div>`;
+        
+        messageElement.innerHTML = messageContent;
         messagesContainer.appendChild(messageElement);
       });
       
@@ -97,19 +109,26 @@ async function sendUserMessage() {
   if (!messageText) return;
   
   try {
-    const messageData = {
-      applicationId: currentApplication.id,
-      content: messageText,
-      from: 'user'
-    };
+    // Utilizar FormData para soportar archivos
+    const formData = new FormData();
+    formData.append('applicationId', currentApplication.id);
+    formData.append('content', messageText);
+    formData.append('from', 'user');
     
-    await fetchApi('messages', 'POST', messageData);
+    // Añadir el archivo si existe
+    const fileInput = document.getElementById('user-file-upload');
+    if (fileInput.files.length > 0) {
+      formData.append('attachment', fileInput.files[0]);
+    }
+    
+    await fetchApi('messages', 'POST', formData, true);
     
     // Actualizar la interfaz
     await loadUserMessages();
     
-    // Limpiar el campo de entrada
+    // Limpiar campos
     document.getElementById('user-message-input').value = '';
+    fileInput.value = '';
     
     showNotification('Mensaje enviado correctamente');
   } catch (error) {
@@ -191,10 +210,22 @@ async function viewMessages(id, name) {
       response.messages.forEach(message => {
         const messageElement = document.createElement('div');
         messageElement.className = `message ${message.from === 'user' ? 'received' : 'sent'}`;
-        messageElement.innerHTML = `
-          <div class="message-content">${message.content}</div>
-          <div class="message-time">${message.time}</div>
-        `;
+        
+        let messageContent = `<div class="message-content">${message.content}</div>`;
+        
+        // Agregar adjunto si existe
+        if (message.attachmentUrl) {
+          messageContent += `
+            <div class="message-attachment">
+              <div class="file-icon">📎</div>
+              <div class="file-name">${message.attachmentUrl}</div>
+            </div>
+          `;
+        }
+        
+        messageContent += `<div class="message-time">${message.time}</div>`;
+        
+        messageElement.innerHTML = messageContent;
         messagesContainer.appendChild(messageElement);
       });
       
@@ -214,19 +245,26 @@ async function sendAdminMessage() {
   if (!messageText) return;
   
   try {
-    const messageData = {
-      applicationId: selectedClientId,
-      content: messageText,
-      from: 'admin'
-    };
+    // Utilizar FormData para soportar archivos
+    const formData = new FormData();
+    formData.append('applicationId', selectedClientId);
+    formData.append('content', messageText);
+    formData.append('from', 'admin');
     
-    await fetchApi('admin/messages', 'POST', messageData);
+    // Añadir el archivo si existe
+    const fileInput = document.getElementById('admin-file-upload');
+    if (fileInput.files.length > 0) {
+      formData.append('attachment', fileInput.files[0]);
+    }
+    
+    await fetchApi('admin/messages', 'POST', formData, true);
     
     // Actualizar la interfaz
     await viewMessages(selectedClientId, document.getElementById('selected-client-name').textContent);
     
-    // Limpiar el campo de entrada
+    // Limpiar campos
     document.getElementById('admin-message-text').value = '';
+    fileInput.value = '';
     
     showNotification('Mensaje enviado correctamente');
   } catch (error) {
