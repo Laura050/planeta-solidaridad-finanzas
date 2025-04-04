@@ -1,6 +1,7 @@
 // Variables de estado
 let currentApplication = null;
 let selectedClientId = null;
+let lastCheckedTimestamp = Date.now();
 
 // Función para seguir una solicitud
 async function trackApplication(event) {
@@ -51,6 +52,9 @@ async function trackApplication(event) {
       // Cargar mensajes
       await loadUserMessages();
       
+      // Iniciar verificación periódica de mensajes
+      startMessageCheck();
+      
       showSection('user-dashboard');
     } else {
       showNotification('No se encontró ninguna solicitud con ese código.', true);
@@ -77,12 +81,14 @@ async function loadUserMessages() {
         
         let messageContent = `<div class="message-content">${message.content}</div>`;
         
-        // Agregar adjunto si existe
+        // Agregar enlace de descarga si hay un archivo adjunto
         if (message.attachmentUrl) {
           messageContent += `
             <div class="message-attachment">
               <div class="file-icon">📎</div>
-              <div class="file-name">${message.attachmentUrl}</div>
+              <a href="/uploads/${message.attachmentUrl}" class="file-download" target="_blank" download>
+                Descargar: ${message.attachmentUrl}
+              </a>
             </div>
           `;
         }
@@ -95,10 +101,44 @@ async function loadUserMessages() {
       
       // Desplazar al final de los mensajes
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      // Actualizar timestamp del último chequeo
+      lastCheckedTimestamp = Date.now();
     }
   } catch (error) {
     console.error('Error al cargar mensajes:', error);
   }
+}
+
+// Función para verificar nuevos mensajes
+async function checkNewMessages() {
+  if (!currentApplication) return;
+  
+  try {
+    const response = await fetchApi(`messages/${currentApplication.id}/new?lastCheck=${lastCheckedTimestamp}`, 'GET');
+    
+    if (response && response.hasNewMessages) {
+      // Mostrar notificación y recargar mensajes
+      showNotification('¡Tiene nuevos mensajes!');
+      await loadUserMessages();
+    }
+  } catch (error) {
+    console.error('Error al verificar nuevos mensajes:', error);
+  }
+}
+
+// Verificar nuevos mensajes periódicamente
+let messageCheckInterval;
+
+// Función para iniciar la verificación periódica
+function startMessageCheck() {
+  // Detener intervalo existente si hay uno
+  if (messageCheckInterval) {
+    clearInterval(messageCheckInterval);
+  }
+  
+  // Iniciar nuevo intervalo
+  messageCheckInterval = setInterval(checkNewMessages, 30000); // 30 segundos
 }
 
 // Función para enviar un mensaje como usuario
@@ -213,12 +253,14 @@ async function viewMessages(id, name) {
         
         let messageContent = `<div class="message-content">${message.content}</div>`;
         
-        // Agregar adjunto si existe
+        // Agregar enlace de descarga si hay un archivo adjunto
         if (message.attachmentUrl) {
           messageContent += `
             <div class="message-attachment">
               <div class="file-icon">📎</div>
-              <div class="file-name">${message.attachmentUrl}</div>
+              <a href="/uploads/${message.attachmentUrl}" class="file-download" target="_blank" download>
+                Descargar: ${message.attachmentUrl}
+              </a>
             </div>
           `;
         }
@@ -272,6 +314,23 @@ async function sendAdminMessage() {
   }
 }
 
+// Función para detener la verificación de mensajes cuando el usuario sale de la página
+function stopMessageCheck() {
+  if (messageCheckInterval) {
+    clearInterval(messageCheckInterval);
+    messageCheckInterval = null;
+  }
+}
+
+// Agregar evento para detener la verificación cuando se cambia de sección
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden') {
+    stopMessageCheck();
+  } else if (document.visibilityState === 'visible' && currentApplication) {
+    startMessageCheck();
+  }
+});
+
 // Inicialización específica para esta página
 window.initPage = function() {
   document.querySelectorAll('.section').forEach(section => {
@@ -280,5 +339,10 @@ window.initPage = function() {
     } else {
       section.style.display = 'block';
     }
+  });
+  
+  // Detener verificación de mensajes al cambiar de sección
+  document.querySelectorAll('.back-btn').forEach(btn => {
+    btn.addEventListener('click', stopMessageCheck);
   });
 };
