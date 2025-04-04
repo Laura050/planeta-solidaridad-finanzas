@@ -12,6 +12,16 @@ const applicationRoutes = require('./routes/applications');
 const messageRoutes = require('./routes/messages');
 const testimonialRoutes = require('./routes/testimonials');
 const adminRoutes = require('./routes/admin');
+// Ajouter au début du fichier, après les imports
+const fs = require('fs');
+const path = require('path');
+
+// Ajouter avant la configuration de multer
+// Assurez-vous que le dossier uploads existe
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Inicializar app
 const app = express();
