@@ -77,6 +77,8 @@ app.use('/api/admin', adminRoutes);
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Asegurarse de que los archivos uploads son accesibles
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Servir la aplicación React en producción
