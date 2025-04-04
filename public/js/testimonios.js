@@ -1,5 +1,7 @@
-// Función para cargar los testimonios
+// Fonction pour charger les témoignages
 async function loadTestimonials() {
+  showLoading();
+  
   try {
     const response = await fetchApi('testimonials', 'GET');
     
@@ -7,27 +9,37 @@ async function loadTestimonials() {
       const container = document.getElementById('testimonials-container');
       container.innerHTML = '';
       
-      response.testimonials.forEach(testimonial => {
-        const testimonialElement = document.createElement('div');
-        testimonialElement.className = 'testimonial';
-        testimonialElement.innerHTML = `
-          <div class="testimonial-content">"${testimonial.content}"</div>
-          <div class="testimonial-author">${testimonial.name}</div>
-          <div class="testimonial-date">${testimonial.date}</div>
-        `;
-        container.appendChild(testimonialElement);
-      });
+      if (response.testimonials.length === 0) {
+        container.innerHTML = '<div class="testimonial"><p>No hay testimonios disponibles en este momento.</p></div>';
+      } else {
+        response.testimonials.forEach(testimonial => {
+          const testimonialElement = document.createElement('div');
+          testimonialElement.className = 'testimonial';
+          testimonialElement.innerHTML = `
+            <div class="testimonial-content">"${testimonial.content}"</div>
+            <div class="testimonial-author">${testimonial.name}</div>
+            <div class="testimonial-date">${testimonial.date}</div>
+          `;
+          container.appendChild(testimonialElement);
+        });
+      }
+    } else {
+      showNotification('Error al cargar los testimonios', true);
     }
   } catch (error) {
     console.error('Error al cargar testimonios:', error);
+    showNotification('Error al cargar los testimonios', true);
+  } finally {
+    hideLoading();
   }
 }
 
-// Función para enviar un nuevo testimonio
+// Fonction pour envoyer un nouveau témoignage
 async function submitTestimonial(event) {
   event.preventDefault();
+  showLoading();
   
-  // Obtener datos del formulario
+  // Obtenir données du formulaire
   const name = document.getElementById('testimonial-name').value;
   const content = document.getElementById('testimonial-content').value;
   
@@ -50,6 +62,9 @@ async function submitTestimonial(event) {
     showSection('testimonials-section');
   } catch (error) {
     console.error('Error al enviar testimonio:', error);
+    showNotification('Error al enviar su testimonio', true);
+  } finally {
+    hideLoading();
   }
 }
 
