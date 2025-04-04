@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento de Expediente - PSF</title>
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="notification" class="notification"></div>
+  
+  <header>
+    <div class="container" style="display: flex; align-items: center;">
+      <a href="index.html">
+        <img src="images/logo.svg" alt="PSF Logo" class="logo">
+      </a>
+      <div class="brand-name">Planeta Solidaridad Finanzas</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Sección de Seguimiento -->
+    <div id="tracking-section" class="section" style="display: block;">
+      <span class="back-btn" onclick="window.location.href='index.html'">← Volver</span>
+      <h2>Seguir mi Expediente</h2>
+      <form id="tracking-form" onsubmit="trackApplication(event)">
+        <div class="form-group">
+          <label for="tracking-code-input">Ingrese su código de seguimiento:</label>
+          <input type="text" id="tracking-code-input" name="tracking-code" required>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-secondary">Consultar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Panel del Usuario -->
+    <div id="user-dashboard" class="section">
+      <span class="back-btn" onclick="showSection('tracking-section')">← Volver</span>
+      <div class="user-dashboard">
+        <div class="dashboard-header">
+          <h2>Panel de Cliente</h2>
+        </div>
+        <div class="dashboard-content">
+          <div class="dashboard-section">
+            <h3>Estado de su Solicitud</h3>
+            <div class="status-badge status-pending" id="application-status">Solicitud en estudio</div>
+          </div>
+          
+          <div class="dashboard-section">
+            <h3>Detalles de la Solicitud</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Tipo de Préstamo:</span>
+                <span id="detail-loan-type">Personal</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Monto:</span>
+                <span id="detail-amount">10,000 €</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Plazo:</span>
+                <span id="detail-term">36 meses</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Mensualidad:</span>
+                <span id="detail-payment">299.71 €</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Fecha de Solicitud:</span>
+                <span id="detail-date">04/04/2025</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Código de Seguimiento:</span>
+                <span id="detail-tracking">PSF-12345</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="dashboard-section">
+            <h3>Mensajes</h3>
+            <div class="message-area">
+              <div class="message-header">
+                <h4>Comunicación con su gestor de crédito</h4>
+              </div>
+              <div class="messages" id="user-messages">
+                <!-- Los mensajes se cargarán desde JavaScript -->
+              </div>
+              <div class="message-input">
+                <textarea id="user-message-input" placeholder="Escriba su mensaje aquí..."></textarea>
+                <input type="file" id="user-file-upload" class="file-input">
+                <label for="user-file-upload" class="file-label">📎</label>
+                <button class="btn btn-primary" onclick="sendUserMessage()">Enviar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel del Administrador -->
+    <div id="admin-dashboard" class="section">
+      <span class="back-btn" onclick="showSection('tracking-section')">← Volver</span>
+      <div class="admin-dashboard">
+        <div class="admin-header">
+          <h2>Panel de Administrador</h2>
+        </div>
+        <div class="admin-content">
+          <h3>Solicitudes Pendientes</h3>
+          
+          <table class="applications-list">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>DNI</th>
+                <th>Monto</th>
+                <th>Plazo</th>
+                <th>Mensualidad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-applications">
+              <!-- Las solicitudes se cargarán desde JavaScript -->
+            </tbody>
+          </table>
+          
+          <div id="admin-message-section" style="margin-top: 30px; display: none;">
+            <h3>Mensajes - <span id="selected-client-name"></span></h3>
+            <div class="message-area">
+              <div class="message-header">
+                <h4>Comunicación con el cliente</h4>
+              </div>
+              <div class="messages" id="admin-messages">
+                <!-- Los mensajes se cargarán desde JavaScript -->
+              </div>
+              <div class="message-input">
+                <textarea id="admin-message-text" placeholder="Escriba su mensaje aquí..."></textarea>
+                <input type="file" id="admin-file-upload" class="file-input">
+                <label for="admin-file-upload" class="file-label">📎</label>
+                <button class="btn btn-primary" onclick="sendAdminMessage()">Enviar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Planeta Solidaridad Finanzas</h3>
+          <p>Ofrecemos soluciones financieras éticas y sostenibles para todos.</p>
+          <div class="social-icons">
+            <a href="#" class="social-icon">f</a>
+            <a href="#" class="social-icon">t</a>
+            <a href="#" class="social-icon">in</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Enlaces rápidos</h3>
+          <ul>
+            <li><a href="solicitar.html">Préstamos</a></li>
+            <li><a href="seguimiento.html">Seguimiento</a></li>
+            <li><a href="testimonios.html">Testimonios</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Planeta Solidaridad Finanzas. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/seguimiento.js"></script>
+</body>
+</html>
