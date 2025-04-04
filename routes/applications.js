@@ -40,7 +40,7 @@ router.post('/', async (req, res, next) => {
         city: req.body.ciudad,
         address: req.body.direccion,
         dni: req.body.dni,
-        documentUrl: req.file.path,
+        documentUrl: req.file ? req.file.originalname : 'document_id.jpg', // Modificado para almacenar solo el nombre
         amount: req.body.monto,
         term: req.body.plazo,
         payment: req.body.payment,
