@@ -19,6 +19,28 @@ router.get('/:applicationId', async (req, res, next) => {
   }
 });
 
+// Verificar si hay nuevos mensajes
+router.get('/:applicationId/new', async (req, res, next) => {
+  try {
+    // Obtener el timestamp del último chequeo del parámetro de consulta
+    const lastCheck = req.query.lastCheck || 0;
+    
+    // Buscar mensajes más recientes que el último chequeo
+    const newMessages = await Message.countDocuments({
+      applicationId: req.params.applicationId,
+      createdAt: { $gt: new Date(parseInt(lastCheck)) }
+    });
+    
+    res.json({
+      success: true,
+      hasNewMessages: newMessages > 0,
+      count: newMessages
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Enviar mensaje como usuario
 router.post('/', async (req, res, next) => {
   try {
@@ -49,7 +71,8 @@ router.post('/', async (req, res, next) => {
       // Procesar archivo adjunto si existe
       let attachmentUrl = null;
       if (req.file) {
-        attachmentUrl = req.file.originalname;
+        // Guardar el nombre de archivo generado por multer, no el nombre original
+        attachmentUrl = req.file.filename;
       }
       
       // Crear y guardar el mensaje
