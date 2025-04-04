@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitar Crédito - PSF</title>
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="notification" class="notification"></div>
+  
+  <header>
+    <div class="container" style="display: flex; align-items: center;">
+      <a href="index.html">
+        <img src="images/logo.svg" alt="PSF Logo" class="logo">
+      </a>
+      <div class="brand-name">Planeta Solidaridad Finanzas</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Sección de Tipos de Préstamos -->
+    <div id="loan-types-section" class="section" style="display: block;">
+      <span class="back-btn" onclick="window.location.href='index.html'">← Volver</span>
+      <h2>Tipos de Préstamos</h2>
+      <div class="loan-types">
+        <div class="loan-type" onclick="showLoanForm('Personal')">
+          <h3>Préstamo Personal</h3>
+          <p>Hasta 30.000€ para sus proyectos personales</p>
+        </div>
+        <div class="loan-type" onclick="showLoanForm('Vivienda')">
+          <h3>Préstamo Vivienda</h3>
+          <p>Financiación para compra o reforma de vivienda</p>
+        </div>
+        <div class="loan-type" onclick="showLoanForm('Educación')">
+          <h3>Préstamo Educación</h3>
+          <p>Inversión en su futuro académico</p>
+        </div>
+        <div class="loan-type" onclick="showLoanForm('Negocio')">
+          <h3>Préstamo Negocio</h3>
+          <p>Impulse su empresa o actividad profesional</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de Solicitud de Préstamo -->
+    <div id="loan-form-section" class="section">
+      <span class="back-btn" onclick="showSection('loan-types-section')">← Volver a tipos de préstamos</span>
+      <h2>Solicitud de Préstamo <span id="loan-type-title"></span></h2>
+      
+      <form id="loan-application-form" onsubmit="submitLoanApplication(event)">
+        <input type="hidden" id="loan-type" name="loan-type">
+        
+        <div class="form-group">
+          <label for="nombre">Nombre completo *</label>
+          <input type="text" id="nombre" name="nombre" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Correo electrónico *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="telefono">Teléfono *</label>
+          <input type="tel" id="telefono" name="telefono" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="ciudad">Ciudad *</label>
+          <input type="text" id="ciudad" name="ciudad" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="direccion">Dirección *</label>
+          <input type="text" id="direccion" name="direccion" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="dni">Número DNI *</label>
+          <input type="text" id="dni" name="dni" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="id-document">Adjuntar archivo DNI, NIE o Pasaporte *</label>
+          <input type="file" id="id-document" name="id-document" accept=".pdf,.jpg,.jpeg,.png" required onchange="previewFile(this, 'id-document-preview')">
+          <small>Formato aceptado: PDF, JPG, PNG (máx. 5MB)</small>
+          <div id="id-document-preview" class="file-preview" style="display: none;">
+            <span class="file-preview-icon">📄</span>
+            <span class="file-preview-name"></span>
+            <span class="file-preview-remove" onclick="removeFile('id-document', 'id-document-preview')">✕</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="monto">Monto solicitado (€) *</label>
+          <input type="number" id="monto" name="monto" min="1000" required onchange="calcularMensualidad()">
+        </div>
+        
+        <div class="form-group">
+          <label for="plazo">Plazo (meses) *</label>
+          <input type="number" id="plazo" name="plazo" min="6" max="120" required onchange="calcularMensualidad()">
+        </div>
+        
+        <div class="form-calculator">
+          <h3>Calculadora de préstamo</h3>
+          <p>Mensualidad estimada (€) con tasa de 3,5% anual</p>
+          <div class="calculator-result" id="mensualidad">€ 0.00</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="ingresos">Ingresos mensuales (€) *</label>
+          <input type="number" id="ingresos" name="ingresos" min="500" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="proposito">Propósito del crédito *</label>
+          <textarea id="proposito" name="proposito" rows="4" required></textarea>
+        </div>
+        
+        <div class="form-group" style="grid-column: span 2;">
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar Solicitud</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Mensaje de Éxito -->
+    <div id="success-section" class="section">
+      <h2>¡Solicitud Enviada con Éxito!</h2>
+      <div class="success-message">
+        <p>Gracias por su solicitud. Su petición de crédito está en proceso de estudio.</p>
+        <p>Por favor, guarde el siguiente código de seguimiento para consultar el estado de su solicitud:</p>
+        <div class="tracking-code" id="tracking-code"></div>
+        <p>Recibirá una respuesta en un plazo máximo de 48 horas laborables.</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">Volver al Inicio</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Planeta Solidaridad Finanzas</h3>
+          <p>Ofrecemos soluciones financieras éticas y sostenibles para todos.</p>
+          <div class="social-icons">
+            <a href="#" class="social-icon">f</a>
+            <a href="#" class="social-icon">t</a>
+            <a href="#" class="social-icon">in</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Enlaces rápidos</h3>
+          <ul>
+            <li><a href="solicitar.html">Préstamos</a></li>
+            <li><a href="seguimiento.html">Seguimiento</a></li>
+            <li><a href="testimonios.html">Testimonios</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Planeta Solidaridad Finanzas. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/solicitar.js"></script>
+</body>
+</html>
