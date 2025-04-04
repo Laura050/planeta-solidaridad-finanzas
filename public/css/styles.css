@@ -593,3 +593,28 @@ input, select, textarea {
   color: #555;
   word-break: break-all;
 }
+.file-download {
+  cursor: pointer;
+  color: var(--secondary-color);
+  text-decoration: underline;
+}
+
+.file-download:hover {
+  color: var(--primary-color);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #f44336;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
