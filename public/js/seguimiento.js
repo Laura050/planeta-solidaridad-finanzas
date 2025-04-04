@@ -331,6 +331,25 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
+// Función de cierre de sesión
+function logout() {
+  // Arrêter la vérification des messages
+  stopMessageCheck();
+  
+  // Réinitialiser les variables d'état
+  currentApplication = null;
+  selectedClientId = null;
+  
+  // Vider le champ de code de suivi
+  document.getElementById('tracking-code-input').value = '';
+  
+  // Rediriger vers la page de suivi
+  showSection('tracking-section');
+  
+  // Afficher un message
+  showNotification('Sesión cerrada correctamente');
+}
+
 // Inicialización específica para esta página
 window.initPage = function() {
   document.querySelectorAll('.section').forEach(section => {
