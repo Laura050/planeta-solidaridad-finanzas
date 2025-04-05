@@ -1,39 +1,3 @@
-// Fonction pour charger les témoignages
-async function loadTestimonials() {
-  showLoading();
-  
-  try {
-    const response = await fetchApi('testimonials', 'GET');
-    
-    if (response && response.testimonials) {
-      const container = document.getElementById('testimonials-container');
-      container.innerHTML = '';
-      
-      if (response.testimonials.length === 0) {
-        container.innerHTML = '<div class="testimonial"><p>No hay testimonios disponibles en este momento.</p></div>';
-      } else {
-        response.testimonials.forEach(testimonial => {
-          const testimonialElement = document.createElement('div');
-          testimonialElement.className = 'testimonial';
-          testimonialElement.innerHTML = `
-            <div class="testimonial-content">"${testimonial.content}"</div>
-            <div class="testimonial-author">${testimonial.name}</div>
-            <div class="testimonial-date">${testimonial.date}</div>
-          `;
-          container.appendChild(testimonialElement);
-        });
-      }
-    } else {
-      showNotification('Error al cargar los testimonios', true);
-    }
-  } catch (error) {
-    console.error('Error al cargar testimonios:', error);
-    showNotification('Error al cargar los testimonios', true);
-  } finally {
-    hideLoading();
-  }
-}
-
 // Fonction pour envoyer un nouveau témoignage
 async function submitTestimonial(event) {
   event.preventDefault();
@@ -54,11 +18,10 @@ async function submitTestimonial(event) {
     // Resetear el formulario
     document.getElementById('testimonial-form').reset();
     
-    // Mostrar notificación y redireccionar
-    showNotification('¡Gracias por compartir su experiencia! Su testimonio ha sido publicado.');
+    // Mostrar notificación modificada
+    showNotification('¡Gracias por compartir su experiencia! Su testimonio será revisado y publicado en breve.');
     
-    // Recargar testimonios y mostrar la sección
-    await loadTestimonials();
+    // Volver a la sección de testimonios
     showSection('testimonials-section');
   } catch (error) {
     console.error('Error al enviar testimonio:', error);
@@ -67,20 +30,3 @@ async function submitTestimonial(event) {
     hideLoading();
   }
 }
-
-// Hacer disponible la función loadTestimonials a nivel global
-window.loadTestimonials = loadTestimonials;
-
-// Inicialización específica para esta página
-window.initPage = function() {
-  document.querySelectorAll('.section').forEach(section => {
-    if (section.id !== 'testimonials-section') {
-      section.style.display = 'none';
-    } else {
-      section.style.display = 'block';
-    }
-  });
-  
-  // Cargar testimonios al iniciar
-  loadTestimonials();
-};
