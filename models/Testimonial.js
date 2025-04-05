@@ -13,6 +13,10 @@ const TestimonialSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  approved: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
