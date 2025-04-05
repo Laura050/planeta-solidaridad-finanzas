@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 const Testimonial = require('../models/Testimonial');
 
-// Obtener todos los testimonios (incluidos los aprobados y los antiguos sin campo approved)
+// Obtener todos los testimonios
 router.get('/', async (req, res, next) => {
   try {
-    // Cette requête récupère les témoignages soit approuvés, soit sans champ 'approved'
+    // Cette requête récupère TOUS les témoignages existants et les nouveaux qui sont approuvés
     const testimonials = await Testimonial.find({
       $or: [
         { approved: true },
-        { approved: { $exists: false } }
+        { approved: { $exists: false } }, // Pour les anciens témoignages sans champ approved
+        { createdAt: { $lt: new Date('2025-04-10') } } // Pour tous les témoignages créés avant aujourd'hui
       ]
     }).sort({ createdAt: -1 });
     
@@ -21,9 +22,6 @@ router.get('/', async (req, res, next) => {
     next(error);
   }
 });
-
-// Le reste du code pour créer des témoignages reste le même
-// Les nouveaux témoignages auront approved: false par défaut
 
 // Crear un nuevo testimonio
 router.post('/', async (req, res, next) => {
