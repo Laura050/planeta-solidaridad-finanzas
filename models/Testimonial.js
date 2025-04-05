@@ -15,7 +15,7 @@ const TestimonialSchema = new mongoose.Schema({
   },
   approved: {
     type: Boolean,
-    default: false
+    default: true  // Change this to true to approve all by default
   },
   createdAt: {
     type: Date,
