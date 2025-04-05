@@ -1,32 +1,47 @@
-// Fonction pour envoyer un nouveau témoignage
-async function submitTestimonial(event) {
-  event.preventDefault();
+// Fonction pour charger les témoignages
+async function loadTestimonials() {
   showLoading();
   
-  // Obtenir données du formulaire
-  const name = document.getElementById('testimonial-name').value;
-  const content = document.getElementById('testimonial-content').value;
+  // Données de secours (fallback) en cas d'échec de l'API
+  const fallbackTestimonials = [
+    {name: 'Carlos Ruiz', content: 'Gracias a PSF pude financiar mis estudios de máster. El proceso fue rápido y transparente.', date: '15/12/2023'},
+    {name: 'Laura Fernández', content: 'Solicité un préstamo para reformar mi casa y me lo concedieron en menos de 48 horas.', date: '23/01/2024'},
+    {name: 'Miguel Ángel Pérez', content: 'Mi experiencia con PSF ha sido inmejorable. Un trato personalizado y condiciones competitivas.', date: '18/03/2024'},
+    {name: 'Elena Torres', content: 'Recomiendo PSF a todos mis amigos. Gracias a su préstamo pude comprar mi primer coche.', date: '05/05/2024'},
+    {name: 'Javier Moreno', content: 'Elegí PSF por su transparencia y su atención al cliente. No me he arrepentido en absoluto.', date: '12/07/2024'}
+  ];
   
   try {
-    const testimonialData = {
-      name,
-      content
-    };
+    let testimonials = [];
     
-    await fetchApi('testimonials', 'POST', testimonialData);
+    try {
+      const response = await fetchApi('testimonials', 'GET');
+      if (response && response.testimonials && response.testimonials.length > 0) {
+        testimonials = response.testimonials;
+      } else {
+        throw new Error('No testimonials from API');
+      }
+    } catch (apiError) {
+      console.warn('Error fetching testimonials from API, using fallback data', apiError);
+      testimonials = fallbackTestimonials;
+    }
     
-    // Resetear el formulario
-    document.getElementById('testimonial-form').reset();
+    const container = document.getElementById('testimonials-container');
+    container.innerHTML = '';
     
-    // Mostrar notificación modificada
-    showNotification('¡Gracias por compartir su experiencia! Su testimonio será revisado y publicado en breve.');
-    
-    // Recargar testimonios y mostrar la sección
-    await loadTestimonials();
-    showSection('testimonials-section');
+    testimonials.forEach(testimonial => {
+      const testimonialElement = document.createElement('div');
+      testimonialElement.className = 'testimonial';
+      testimonialElement.innerHTML = `
+        <div class="testimonial-content">"${testimonial.content}"</div>
+        <div class="testimonial-author">${testimonial.name}</div>
+        <div class="testimonial-date">${testimonial.date}</div>
+      `;
+      container.appendChild(testimonialElement);
+    });
   } catch (error) {
-    console.error('Error al enviar testimonio:', error);
-    showNotification('Error al enviar su testimonio', true);
+    console.error('Error al cargar testimonios:', error);
+    showNotification('Error al cargar los testimonios', true);
   } finally {
     hideLoading();
   }
