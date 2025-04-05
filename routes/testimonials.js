@@ -2,14 +2,73 @@ const express = require('express');
 const router = express.Router();
 const Testimonial = require('../models/Testimonial');
 
-// Obtener todos los testimonios
+// Obtener todos los testimonios aprobados
 router.get('/', async (req, res, next) => {
+  try {
+    const testimonials = await Testimonial.find({ approved: true }).sort({ createdAt: -1 });
+    
+    res.json({
+      success: true,
+      testimonials
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Obtener todos los testimonios (para administrador)
+router.get('/admin', async (req, res, next) => {
   try {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
     
     res.json({
       success: true,
       testimonials
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Aprobar un testimonio
+router.put('/admin/:id/approve', async (req, res, next) => {
+  try {
+    const testimonial = await Testimonial.findById(req.params.id);
+    
+    if (!testimonial) {
+      return res.status(404).json({
+        success: false,
+        message: 'Testimonio no encontrado'
+      });
+    }
+    
+    testimonial.approved = true;
+    await testimonial.save();
+    
+    res.json({
+      success: true,
+      message: 'Testimonio aprobado con éxito'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Rechazar un testimonio
+router.delete('/admin/:id', async (req, res, next) => {
+  try {
+    const result = await Testimonial.findByIdAndDelete(req.params.id);
+    
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: 'Testimonio no encontrado'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Testimonio rechazado y eliminado con éxito'
     });
   } catch (error) {
     next(error);
@@ -32,18 +91,19 @@ router.post('/', async (req, res, next) => {
     const now = new Date();
     const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
     
-    // Crear y guardar el testimonio
+    // Crear y guardar el testimonio (sin aprobar por defecto)
     const testimonial = new Testimonial({
       name,
       content,
-      date: dateStr
+      date: dateStr,
+      approved: false
     });
     
     await testimonial.save();
     
     res.status(201).json({
       success: true,
-      message: 'Testimonio creado con éxito',
+      message: 'Testimonio enviado con éxito. Será revisado por un administrador antes de ser publicado.',
       testimonial
     });
   } catch (error) {
