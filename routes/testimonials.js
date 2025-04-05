@@ -2,17 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Testimonial = require('../models/Testimonial');
 
-// Obtener todos los testimonios
+// Obtener todos los testimonios aprobados
 router.get('/', async (req, res, next) => {
   try {
-    // Cette requête récupère TOUS les témoignages existants et les nouveaux qui sont approuvés
-    const testimonials = await Testimonial.find({
-      $or: [
-        { approved: true },
-        { approved: { $exists: false } }, // Pour les anciens témoignages sans champ approved
-        { createdAt: { $lt: new Date('2025-04-10') } } // Pour tous les témoignages créés avant aujourd'hui
-      ]
-    }).sort({ createdAt: -1 });
+    const testimonials = await Testimonial.find({ approved: true }).sort({ createdAt: -1 });
     
     res.json({
       success: true,
@@ -23,7 +16,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// Crear un nuevo testimonio
+// Crear un nuevo testimonio (pendiente de aprobación)
 router.post('/', async (req, res, next) => {
   try {
     const { name, content } = req.body;
@@ -39,12 +32,12 @@ router.post('/', async (req, res, next) => {
     const now = new Date();
     const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
     
-    // Crear y guardar el testimonio (sin aprobar por defecto)
+    // Nuevos testimonios requieren aprobación
     const testimonial = new Testimonial({
       name,
       content,
       date: dateStr,
-      approved: false // Nouveaux témoignages non approuvés par défaut
+      approved: false  // Explicit setting for new testimonials
     });
     
     await testimonial.save();
@@ -59,7 +52,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// Obtener todos los testimonios para administrador (aprobados y pendientes)
+// Obtener todos los testimonios para administrador
 router.get('/admin', async (req, res, next) => {
   try {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
