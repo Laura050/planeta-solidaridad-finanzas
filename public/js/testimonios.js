@@ -21,7 +21,8 @@ async function submitTestimonial(event) {
     // Mostrar notificación modificada
     showNotification('¡Gracias por compartir su experiencia! Su testimonio será revisado y publicado en breve.');
     
-    // Volver a la sección de testimonios
+    // Recargar testimonios y mostrar la sección
+    await loadTestimonials();
     showSection('testimonials-section');
   } catch (error) {
     console.error('Error al enviar testimonio:', error);
