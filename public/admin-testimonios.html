@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Testimonios - PSF</title>
+  <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="notification" class="notification"></div>
+  
+  <header>
+    <div class="container" style="display: flex; align-items: center;">
+      <a href="index.html">
+        <img src="images/logo.svg" alt="PSF Logo" class="logo">
+      </a>
+      <div class="brand-name">Planeta Solidaridad Finanzas</div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="section" style="display: block;">
+      <div class="admin-dashboard">
+        <div class="admin-header">
+          <h2>Administración de Testimonios</h2>
+        </div>
+        <div class="admin-content">
+          <h3>Testimonios Pendientes de Aprobación</h3>
+          
+          <div id="pending-testimonials"></div>
+          
+          <h3 style="margin-top: 30px;">Testimonios Aprobados</h3>
+          
+          <div id="approved-testimonials"></div>
+          
+          <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-secondary" onclick="window.location.href='seguimiento.html'">Volver a Panel de Administrador</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Planeta Solidaridad Finanzas</h3>
+          <p>Ofrecemos soluciones financieras éticas y sostenibles para todos.</p>
+          <div class="social-icons">
+            <a href="#" class="social-icon">f</a>
+            <a href="#" class="social-icon">t</a>
+            <a href="#" class="social-icon">in</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Enlaces rápidos</h3>
+          <ul>
+            <li><a href="solicitar.html">Préstamos</a></li>
+            <li><a href="seguimiento.html">Seguimiento</a></li>
+            <li><a href="testimonios.html">Testimonios</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Planeta Solidaridad Finanzas. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/admin-testimonios.js"></script>
+</body>
+</html>
