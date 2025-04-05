@@ -2,10 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Testimonial = require('../models/Testimonial');
 
-// Obtener todos los testimonios aprobados
+// Obtener todos los testimonios (incluidos los aprobados y los antiguos sin campo approved)
 router.get('/', async (req, res, next) => {
   try {
-    const testimonials = await Testimonial.find({ approved: true }).sort({ createdAt: -1 });
+    // Cette requête récupère les témoignages soit approuvés, soit sans champ 'approved'
+    const testimonials = await Testimonial.find({
+      $or: [
+        { approved: true },
+        { approved: { $exists: false } }
+      ]
+    }).sort({ createdAt: -1 });
     
     res.json({
       success: true,
@@ -16,7 +22,46 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// Obtener todos los testimonios (para administrador)
+// Le reste du code pour créer des témoignages reste le même
+// Les nouveaux témoignages auront approved: false par défaut
+
+// Crear un nuevo testimonio
+router.post('/', async (req, res, next) => {
+  try {
+    const { name, content } = req.body;
+    
+    if (!name || !content) {
+      return res.status(400).json({
+        success: false,
+        message: 'El nombre y el contenido son obligatorios'
+      });
+    }
+    
+    // Obtener fecha actual formateada
+    const now = new Date();
+    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+    
+    // Crear y guardar el testimonio (sin aprobar por defecto)
+    const testimonial = new Testimonial({
+      name,
+      content,
+      date: dateStr,
+      approved: false // Nouveaux témoignages non approuvés par défaut
+    });
+    
+    await testimonial.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Testimonio enviado con éxito. Será revisado por un administrador antes de ser publicado.',
+      testimonial
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Obtener todos los testimonios para administrador (aprobados y pendientes)
 router.get('/admin', async (req, res, next) => {
   try {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
@@ -69,42 +114,6 @@ router.delete('/admin/:id', async (req, res, next) => {
     res.json({
       success: true,
       message: 'Testimonio rechazado y eliminado con éxito'
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Crear un nuevo testimonio
-router.post('/', async (req, res, next) => {
-  try {
-    const { name, content } = req.body;
-    
-    if (!name || !content) {
-      return res.status(400).json({
-        success: false,
-        message: 'El nombre y el contenido son obligatorios'
-      });
-    }
-    
-    // Obtener fecha actual formateada
-    const now = new Date();
-    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
-    
-    // Crear y guardar el testimonio (sin aprobar por defecto)
-    const testimonial = new Testimonial({
-      name,
-      content,
-      date: dateStr,
-      approved: false
-    });
-    
-    await testimonial.save();
-    
-    res.status(201).json({
-      success: true,
-      message: 'Testimonio enviado con éxito. Será revisado por un administrador antes de ser publicado.',
-      testimonial
     });
   } catch (error) {
     next(error);
