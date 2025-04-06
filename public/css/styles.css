@@ -22,7 +22,10 @@ body {
   margin: 0 auto;
   padding: 20px;
 }
-
+.message-header-container {
+  position: relative;
+  display: inline-block;
+}
 header {
   display: flex;
   align-items: center;
