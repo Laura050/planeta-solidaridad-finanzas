@@ -118,15 +118,16 @@ async function checkNewMessages() {
     const response = await fetchApi(`messages/${currentApplication.id}/new?lastCheck=${lastCheckedTimestamp}`, 'GET');
     
     if (response && response.hasNewMessages) {
-      // Mostrar notificación y recargar mensajes
+      // Afficher le badge de notification
+      document.getElementById('user-message-badge').style.display = 'flex';
+      
+      // Afficher une notification
       showNotification('¡Tiene nuevos mensajes!');
-      await loadUserMessages();
     }
   } catch (error) {
     console.error('Error al verificar nuevos mensajes:', error);
   }
 }
-
 // Verificar nuevos mensajes periódicamente
 let messageCheckInterval;
 
