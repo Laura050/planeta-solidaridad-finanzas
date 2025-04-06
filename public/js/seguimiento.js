@@ -29,6 +29,9 @@ async function trackApplication(event) {
       currentApplication = response.application;
       
       // Cargar datos en el dashboard
+      document.getElementById('detail-name').textContent = currentApplication.name;
+document.getElementById('detail-city').textContent = currentApplication.city;
+document.getElementById('detail-address').textContent = currentApplication.address;
       document.getElementById('detail-loan-type').textContent = currentApplication.type;
       document.getElementById('detail-amount').textContent = currentApplication.amount.toLocaleString() + ' €';
       document.getElementById('detail-term').textContent = currentApplication.term + ' meses';
