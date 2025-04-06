@@ -99,6 +99,9 @@ async function loadUserMessages() {
         messagesContainer.appendChild(messageElement);
       });
       
+      // Ocultar el badge de notificación de mensajes
+      document.getElementById('user-message-badge').style.display = 'none';
+      
       // Desplazar al final de los mensajes
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
       
@@ -118,16 +121,18 @@ async function checkNewMessages() {
     const response = await fetchApi(`messages/${currentApplication.id}/new?lastCheck=${lastCheckedTimestamp}`, 'GET');
     
     if (response && response.hasNewMessages) {
-      // Afficher le badge de notification
+      // Mostrar el badge de notificación
       document.getElementById('user-message-badge').style.display = 'flex';
       
-      // Afficher une notification
+      // Mostrar notificación y recargar mensajes
       showNotification('¡Tiene nuevos mensajes!');
+      await loadUserMessages();
     }
   } catch (error) {
     console.error('Error al verificar nuevos mensajes:', error);
   }
 }
+
 // Verificar nuevos mensajes periódicamente
 let messageCheckInterval;
 
@@ -163,6 +168,17 @@ async function sendUserMessage() {
     }
     
     await fetchApi('messages', 'POST', formData, true);
+    
+    // Notificar al administrador (simulado)
+    try {
+      const adminNotificationData = {
+        applicationId: currentApplication.id,
+        hasNewMessage: true
+      };
+      await fetchApi('admin/notifications', 'POST', adminNotificationData);
+    } catch (notifError) {
+      console.warn('No se pudo enviar notificación al administrador', notifError);
+    }
     
     // Actualizar la interfaz
     await loadUserMessages();
@@ -271,6 +287,9 @@ async function viewMessages(id, name) {
         messageElement.innerHTML = messageContent;
         messagesContainer.appendChild(messageElement);
       });
+      
+      // Ocultar el badge de notificación
+      document.getElementById('admin-message-badge').style.display = 'none';
       
       // Desplazar al final de los mensajes
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
