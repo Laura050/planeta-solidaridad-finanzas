@@ -1,5 +1,5 @@
 {
-  "name": "planeta-solidaridad-finanzas"  ,
+  "name": "planeta-solidaridad-finanzas",
   "version": "1.0.0",
   "description": "Plataforma de gestión de créditos para Planeta Solidaridad Finanzas",
   "main": "server.js",
